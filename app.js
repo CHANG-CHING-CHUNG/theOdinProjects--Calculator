@@ -5,388 +5,120 @@ const btns = Array.from(document.querySelectorAll('.btn'));
 const clear = document.querySelector('#clear');
 const backspace = document.querySelector('#backspace');
 
-let num1 = '';
-let num2 = ''
-let operator = '';
-let displayOnScreen = '';
-let displayResult;
-let isResult = false;
-let isOperator = false;
-let isNum1 = false;
-let enter = false;
-let isEqual = false;
-
+let num = 0;
+let operator;
+let isCalculationDone = false;
 
 for(let btn of btns) {
-    if(!btn.id) {
-        btn.addEventListener('click', (e)=> {
-            enter = false;
-            if(displayBottom.textContent === '0' || isResult || isOperator) {
-                displayBottom.textContent = '';
-                isResult = false;
-                isOperator = false
-            } else if(isEqual) {
-                displayBottom.textContent = '';
-            }
-            displayBottom.textContent += btn.textContent;
-            if(!isNum1) {
-                displayOnScreen += btn.textContent;
-                num1 = Number(displayBottom.textContent);
-            } else {
-                displayOnScreen += btn.textContent;
-                num2 = Number(displayBottom.textContent);
-            }
-        })
-    } else if(btn.id === 'divide') {
-        btn.addEventListener('click', (e) => {
-            const ops = displayOnScreen[displayOnScreen.length - 2];
-            if(ops === '*' || ops === '+' || ops === '-') {
-                operations(displayOnScreen[displayOnScreen.length - 2]);
-                return
-						}
-            operator = '/';
-            isOperator = true;
-            isNum1 = true;
-            if(!enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            } else if(displayOnScreen.length > 3 && !enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            }
-            if(!isNotNumber(displayOnScreen)) {
-                displayOnScreen += '÷';
-                displayTop.textContent = displayOnScreen;
-            }
-        })
-    }  else if(btn.id === 'times') {
-        btn.addEventListener('click', (e) => {
-					const ops = displayOnScreen[displayOnScreen.length - 2];
-            if(ops === '÷' || ops === '+' || ops === '-') {
-                operations(displayOnScreen[displayOnScreen.length - 2]);
-                return
-						}
-            operator = '*';
-            isOperator = true;
-            isNum1 = true;
-        
-            if(!enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            } else if(displayOnScreen.length > 3 && !enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            }
-            if(!isNotNumber(displayOnScreen)) {
-                displayOnScreen += '*';
-                displayTop.textContent = displayOnScreen;
-            }
-        })
-    }  else if(btn.id === 'plus') {
-        btn.addEventListener('click', (e) => {
-					const ops = displayOnScreen[displayOnScreen.length - 2];
-            if(ops === '÷' || ops === '*' || ops === '-') {
-                operations(displayOnScreen[displayOnScreen.length - 2]);
-                return
-						}
-            operator = '+';
-            isOperator = true;
-            isNum1 = true;
-            if(!enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            } else if(displayOnScreen.length > 3 && !enter&& num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            }
-            if(!isNotNumber(displayOnScreen)) {
-                displayOnScreen += '+';
-                displayTop.textContent = displayOnScreen;
-            }
-        })
-    }  else if(btn.id === 'minus') {
-        btn.addEventListener('click', (e) => {
-					const ops = displayOnScreen[displayOnScreen.length - 2];
-            if(ops === '÷' || ops === '+' || ops === '*') {
-                operations(displayOnScreen[displayOnScreen.length - 2]);
-                return
-						}
-            operator = '-';
-            isOperator = true;
-            isNum1 = true;
-            if(!enter && num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            } else if(displayOnScreen.length > 3 && !enter&& num2) {
-                operate(num1,num2,operator)
-                displayTop.textContent = displayOnScreen;
-                displayBottom.textContent = displayResult;
-                num1 = displayResult;
-                num2 = '';
-                enter = true;
-            }
-            if(!isNotNumber(displayOnScreen)) {
-                displayOnScreen += '-';
-                displayTop.textContent = displayOnScreen;
-            }
-        })
-    } else if(btn.id === 'equals') {
-        btn.addEventListener('click', (e) => {
-            if(operator) {
-								const ops = displayOnScreen[displayOnScreen.length - 2];
-							if(ops === '÷' || ops === '+' || ops === '*') {
-									operations(displayOnScreen[displayOnScreen.length - 2]);
-									return
-							}
-							isResult = true;
-							if(!num2) {
-									num2 = num1;
-									displayOnScreen += String(num2);
-									operate(num1,num2, operator)
-							} else {
-									operate(num1,num2, operator)
-							}
-							console.log(`equal ${displayOnScreen}`)
-							clearAll();
-							displayTop.textContent = displayOnScreen;
-							displayBottom.textContent = displayResult;
-							displayOnScreen = '';
-							isEqual = true;
-            }
-        })
-    }
-}
-
-
-body.addEventListener('keyup', (e) => {
-    const key = event.keyCode || event.which;
-    let normalizeKeycode;
-    if(isKeypad(key)) {
-        if(key < 106) {
-            normalizeKeycode = key - 48;
-        } if(key >= 106) {
-						normalizeKeycode = key - 64;
-        }
-        const keychar = String.fromCharCode(normalizeKeycode);
-        if(normalizeKeycode >= 46 && normalizeKeycode <= 57) {
-            displayBottom .textContent = keychar;
-				}
-		}
-
-})
+    btn.addEventListener('click', (e) => {
+        btnEvent(btn);
+})}
 
 
 clear.addEventListener('click', (e) => {
-    clearAll()
+    clearData();
 })
 
 
-function operations(op) {
-    if(op === '*') {
-			operator = '*';
-			isOperator = true;
-			isNum1 = true;
-			
-			if(!enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			} else if(displayOnScreen.length > 3 && !enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			}
-			if(!isNotNumber(displayOnScreen)) {
-					displayOnScreen += '*';
-					displayTop.textContent = displayOnScreen;
-			}
-    } else if(op === '÷') {
-			operator = '/';
-			isOperator = true;
-			isNum1 = true;
-			if(!enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			} else if(displayOnScreen.length > 3 && !enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			}
-			if(!isNotNumber(displayOnScreen)) {
-					displayOnScreen += '÷';
-					displayTop.textContent = displayOnScreen;
-			}
-
-		} else if(op === '+') {
-			operator = '+';
-			isOperator = true;
-			isNum1 = true;
-			if(!enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			} else if(displayOnScreen.length > 3 && !enter&& num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			}
-			if(!isNotNumber(displayOnScreen)) {
-					displayOnScreen += '+';
-					displayTop.textContent = displayOnScreen;
-			}
-			
-		} else if(op === '-') {
-			operator = '-';
-			isOperator = true;
-			isNum1 = true;
-			if(!enter && num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			} else if(displayOnScreen.length > 3 && !enter&& num2) {
-					operate(num1,num2,operator)
-					displayTop.textContent = displayOnScreen;
-					displayBottom.textContent = displayResult;
-					num1 = displayResult;
-					num2 = '';
-					enter = true;
-			}
-			if(!isNotNumber(displayOnScreen)) {
-					displayOnScreen += '-';
-					displayTop.textContent = displayOnScreen;
-			}
-		}
-}
-
-function isNotNumber(str) {
-    let notNumber = false;
-    if(str[0] === '*' || str[0] === '+' || str[0] === '-' || str[0] === '÷') {
-        notNumber = true;
-    } else if(str[str.length - 1]) {
-        if(str[str.length - 1] === '*' || str[str.length - 1] === '+' || str[str.length - 1] === '-' || str[str.length - 1] === '÷') {
-            notNumber = true;
+function btnEvent(btn) {
+    if(!btn.id) {
+        if(isCalculationDone) {
+            clearData();
         }
+
+
+        if(displayTop.textContent[0] === '0') {
+            displayTop.textContent = displayTop.textContent.slice(1);
+        }
+
+        displayTop.textContent += btn.textContent
+
+
+    } else if(checkOP(btn.id) === 'equals' && displayTop.textContent.length === 3) {
+        
+        num = Number(displayTop.textContent[0]);
+        calculation(num,Number(displayTop.textContent[2]), displayTop.textContent[1]);
+        displayBottom.textContent = num;
+        isCalculationDone = true;
+
+    } else if(checkOP(btn.id) != 'equals') {
+
+        if(hasOp(displayTop.textContent)) {
+            displayTop.textContent = displayTop.textContent.slice(0,displayTop.textContent.length - 1);
+        }
+        displayTop.textContent += operator;
+
+        operator = '';
+
     }
-    return notNumber;
+
+
 }
 
-function clearAll() {
-    displayTop.textContent =  '';
-    displayBottom.textContent = '0';
-    num1 = '';
-    num2 = ''
-    operator = '';
-    if(!isResult) {
-        displayOnScreen = '';
-        isResult = false;
-    }
-    displayResult;
-    isResult = false;
-    isOperator = false;
-    isNum1 = false;
-    counter = 0;
-}
-
-backspace.addEventListener('click', (e) => {
-    displayBottom.textContent = '0';
-})
-
-function isKeypad(keyCode) {
-    if(keyCode >=96 && keyCode <= 111) {
-        return true;
+function hasOp(str) {
+    let result = displayTop.textContent;
+    let currIdx = str.length - 1 ;
+    if(result[currIdx] === '+') {
+        return true
+    } else if(result[currIdx] === '-') {
+        return true
+    } else if(result[currIdx] === '*') {
+        return true
+    } else if(result[currIdx] === '/') {
+        return true
     } else {
         return false;
     }
 }
 
-function isDigit(keyCode) {
-    if(keyCode >=48 && keyCode <=58) {
-        return true;
-    } else {
-        return false;
+function calculation(firstN,secondN,ope) {
+    if(ope === '+') {
+        num = firstN + secondN;
+        console.log(num)
+
+    } else if(ope === '-') {
+        num = firstN - secondN;
+        console.log(num)
+    } else if(ope === '*') {
+        num = firstN * secondN;
+        console.log(num)
+    } else if(ope === '/') {
+        num = firstN / secondN;
+        console.log(num)
     }
 }
 
+function parseStr(str) {
+    
+}
 
-function operate(num1,num2,operator) {
-    if(operator === '+') {
-        add(num1,num2);
-    } else if(operator === '-') {
-        subtract(num1,num2)
-    } else if(operator === '*') {
-        multiply(num1,num2)
-    } else if(operator === '/') {
-        divide(num1,num2)
-    } else {
-        console.log('Wrong')
+function checkOP(btnId) {
+    if(btnId === 'divide') {
+        console.log('/');
+        operator = '/'
+        return operator;
+    } else if(btnId === 'times') {
+        console.log('*');
+        operator = '*'
+        return operator;
+    } else if(btnId === 'plus') {
+        console.log('+');
+        operator = '+'
+        return operator;
+    } else if(btnId === 'minus') {
+        console.log('-');
+        operator = '-'
+        return operator;
+    } else if(btnId === 'equals') {
+        console.log('Calculation is done');
+        operator = '';
+        return 'equals';
     }
 }
 
-
-function add(num1,num2) {
-    displayResult = num1 + num2;
-    console.log(num1 + num2);
+function clearData() {
+    displayTop.textContent = '0';
+    displayBottom.textContent = '';
+    num = 0;
+    isCalculationDone = false;
 }
-function subtract(num1,num2) {
-    displayResult = num1 - num2;
-    console.log(num1 - num2);
-}
-function multiply(num1,num2) {
-    displayResult = num1 * num2;
-    console.log(num1 * num2);
-}
-function divide(num1,num2) {
-    displayResult = num1 / num2;
-    console.log(num1 / num2);
-}
-

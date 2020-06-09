@@ -76,6 +76,7 @@ body {
     border-radius: 10px;
     padding: 10px;
     margin-top: 10px;
+    overflow: hidden;
 }
 
 .cal-container .display-operation {
@@ -100,6 +101,6 @@ body {
     grid-gap: 10px;
 }
 
-.cal-container .buttons-container #zero {
+.cal-container .buttons-container .zero {
     grid-column: 1 / span 2;
 }
