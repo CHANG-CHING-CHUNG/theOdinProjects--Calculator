@@ -84,7 +84,7 @@ for(let btn of btns) {
                 history = history + output
                 let result = eval(history);
                     if(result > Number.MAX_SAFE_INTEGER) {
-                        result = Number.MAX_SAFE_INTEGER;
+                        result = Infinity;
                     }
                 result = result.toLocaleString();
                 printHistory('')
