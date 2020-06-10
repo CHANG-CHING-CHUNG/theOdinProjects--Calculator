@@ -2,151 +2,126 @@ const body = document.body;
 const displayTop = document.querySelector('.display-operation');
 const displayBottom = document.querySelector('.display-numbers');
 const btns = Array.from(document.querySelectorAll('.btn'));
-const clear = document.querySelector('#clear');
-const backspace = document.querySelector('#backspace');
+const clear = document.querySelector('.clear');
+const backspace = document.querySelector('.backspace');
 
 
-let num = 0;
-let operator;
-let isCal = false;
-let isContinue = true;
-let dotActive = false;
-let strArr = []
+function getHistory() {
+    return displayTop.textContent;
+}
+
+function printHistory(num) {
+    return displayTop.textContent = num;
+}
+
+function getCurrent() {
+    return displayBottom.textContent;
+}
+
+function printCurrent(num) {
+    return displayBottom.textContent = num;
+}
+
+function clearAll() {
+    printCurrent('')
+    printHistory('')
+}
+
+function deleteLastNum(num) {
+    if(num) {
+        num = num.substr(0, num.length - 1 )
+        printCurrent(num)
+    }
+    let negativeSign = false;
+}
+
+let negativeSign = false;
+let done = false;
 
 for(let btn of btns) {
-    btn.addEventListener('click', (e) => {
-
-        if(checkId(btn.id)) {
-            dotActive = false;
-            if(isCal) {
-                displayBottom.textContent =  operation(strArr,operator);
-                displayTop.textContent = displayBottom.textContent;
-                strArr[0] = displayBottom.textContent;
-            }
-            if(isOpes()) {
-                displayTop.textContent =  displayTop.textContent.slice(0, displayTop.textContent.length - 1)
-            }
-            if(!isCal) {
-                displayTop.textContent += operator;
-                strArr = parseStr(displayTop.textContent, operator);
-            }
-            if(strArr.length === 2) {
-                displayBottom.textContent =  operation(strArr,operator);
-                displayTop.textContent = displayBottom.textContent;
-                strArr[0] = displayBottom.textContent;
-                isCal = false;
-                isContinue = true;
-            }
-        } else if(btn.id != 'plus-minus' && btn.id != 'equals' && btn.id != 'backspace') {
-            if(displayTop.textContent[0] === '0' && !displayTop.textContent[1]) {
-                displayTop.textContent = '';
-            }
-            if(isCal && isContinue) {
-                displayTop.textContent = '';
-                isContinue = false;
-            }
-            if(dotActive && btn.textContent === '.') {
-                return
-            }
-            if(!displayTop.textContent && btn.textContent === '.') {
-                displayTop.textContent = '0';
-                dotActive = true;
-                if(displayTop.textContent[0] === '0' && btn.textContent === '.') {
-                    displayTop.textContent += btn.textContent
+    btn.addEventListener('click', () => {
+       
+        let output = getCurrent();
+        let history = getHistory();
+        output = output.replace(/\,/g,'');
+        if(btn.id === 'clear') {
+            clearAll()
+        } else if (isNaN(output)) {
+            return
+        } else if(!btn.id) {
+            if(output == '0') {
+                if(btn.textContent != '0') {
+                    output = btn.textContent;
+                    printCurrent(output)
                 }
                 return
             }
-            displayTop.textContent += btn.textContent
-            if(isCal) {
-                strArr[0] = displayTop.textContent;
+            if(done) {
+                output = ''
+                done = false;
             }
-            
-        } else if(btn.id === 'equals') {
-            if(!isCal) {
-                strArr = parseStr(displayTop.textContent, operator);
+            output = output + btn.textContent;
+            printCurrent(output)
+        } else if(btn.id != '=' && btn.id != '.' && btn.id != '+/-') {
+            if(output === '' && history != '') {
+                if(isNaN(history[history.length - 1])) {
+                    history = history.substr(0, history.length - 1)
+                }
             }
-            if(strArr.length == 2) {
 
-                displayBottom.textContent =  operation(strArr,operator);
-                displayTop.textContent = displayBottom.textContent;
-                strArr[0] = displayBottom.textContent;
-                isCal = true;
-           }
+            if(output != '' || history != '') {
+                history = history + output;
+                history = history + btn.id;
+                printHistory(history)
+                printCurrent('')
+            }
+           
+        } else if(btn.id === '=') {
+            if(isNaN(history[history.length - 1]) && output == '') {
+                return
+            }
+            if(history != '' || output != '') {
+                history = history + output
+                let result = eval(history);
+                    if(result > Number.MAX_SAFE_INTEGER) {
+                        result = Number.MAX_SAFE_INTEGER;
+                    }
+                result = result.toLocaleString();
+                printHistory('')
+                printCurrent(result)
+                done = true;
+            }
+        } else if(btn.id == '.') {
+            if(output.includes('.')){
+                return
+            } else {
+                if(output == '') {
+                    output = output + '0';
+                }
+                output = output + btn.id;
+                printCurrent(output)
+
+            }
+        } else if(btn.id == '+/-') {
+            if(output != '') {
+                if(negativeSign) {
+                    output = output.substring(1);
+                    printCurrent(output)
+                    negativeSign = false;
+                } else {
+                    output = '-' + output;
+                    negativeSign = true;
+                    printCurrent(output)
+                }
+            }
         }
     })
 }
 
-clear.addEventListener('click', (e) => {
-    clearData();
+backspace.addEventListener('click', () => {
+    const output = getCurrent();
+    if(isNaN(output)) {
+        return
+    }
+    deleteLastNum(output)
 })
-
-
-function parseStr(str,ops) {
-    if(ops != str[1]) {
-        ops = str[1]
-    }
-    operator = ops;
-    strArr = str.split(ops);
-    strArr[1] = strArr[1].slice(0,1);
-    if(!(strArr[strArr.length - 1]) ) {
-        strArr.pop();
-    }
-    console.log(strArr);
-    return strArr;
-}
-
-function operation(arr,ops) {
-    num = Number(arr[1]);
-    if(ops === '+') {
-        return Number(arr[0]) + Number(arr[1]);
-    } else if(ops === '-') {
-        return Number(arr[0]) - Number(arr[1]);
-    } else if(ops === '*') {
-        return Number(arr[0]) * Number(arr[1]);
-    } else if(ops === '/') {
-        return Number(arr[0]) / Number(arr[1]);
-    }
-}
-
-function isOpes() {
-    if(displayTop.textContent[displayTop.textContent.length - 1] === '+') {
-        return true;
-    } else if(displayTop.textContent[displayTop.textContent.length - 1] === '-') {
-        return true;
-    } else if(displayTop.textContent[displayTop.textContent.length - 1] === '*') {
-        return true;
-    } else if(displayTop.textContent[displayTop.textContent.length - 1] === '/') {
-        return true;
-    }
-    return false;
-}
-
-
-function checkId(btnId) {
-    if(btnId === 'plus') {
-        operator = '+'
-        return true;
-    } else if(btnId === 'minus') {
-        operator = '-'
-        return true;
-    } else if(btnId === 'times') {
-        operator = '*'
-        return true;
-    } else if(btnId === 'divide') {
-        operator = '/'
-        return true;
-    }
-    return false;
-}
-
-
-function clearData() {
-    displayTop.textContent = '0';
-    displayBottom.textContent = '';
-    isCal = false;
-    isContinue = true;
-    dotActive = false;
-    strArr = [];
-    operator = '';
-    num = 0;
-}
